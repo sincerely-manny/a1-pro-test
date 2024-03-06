@@ -1,8 +1,8 @@
+import { getAllGames } from '@/data/games';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import 'server-only';
-import { getAllGames } from '../../page';
 
 export async function generateStaticParams() {
     const games = await getAllGames();

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import 'server-only';
-import { getAllCategories, getAllGames } from '../page';
+import { getAllCategories, getAllGames } from '@/data/games';
 
 export async function generateStaticParams() {
     const { categories, providers } = await getAllCategories();
