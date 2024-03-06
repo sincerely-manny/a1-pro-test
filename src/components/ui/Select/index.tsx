@@ -1,9 +1,19 @@
 'use client';
 
-import Image, { type StaticImageData } from 'next/image';
-import { Children, cloneElement, isValidElement, useRef, useState, type ReactElement, type ReactNode } from 'react';
-import ArrowRight from './image/arrow-right.svg';
+import { type StaticImageData } from 'next/image';
+import {
+    Children,
+    cloneElement,
+    isValidElement,
+    useRef,
+    useState,
+    type ReactElement,
+    type ReactNode,
+    useEffect,
+} from 'react';
+// import ArrowRight from './image/arrow-right.svg';
 import Border from './image/border.svg';
+import ArrowRight from './image/arrow-right';
 
 type RootProps = {
     name: string;
@@ -19,6 +29,8 @@ function Root({ name, value = undefined, defaultValue = undefined, onChange = un
     const buttonRef = useRef<HTMLButtonElement>(null);
     const popOverRef = useRef<HTMLUListElement>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [intValue, setIntValue] = useState(value ?? defaultValue);
+
     const open = () => {
         setIsOpen(true);
     };
@@ -32,7 +44,21 @@ function Root({ name, value = undefined, defaultValue = undefined, onChange = un
         );
         popOverRef.current?.setAttribute('data-hidden', 'true');
     };
-    const [intValue, setIntValue] = useState(value ?? defaultValue);
+    const handleClickOutside = (e: MouseEvent) => {
+        if (
+            isOpen &&
+            !popOverRef.current?.contains(e.target as Node) &&
+            !buttonRef.current?.contains(e.target as Node)
+        ) {
+            close();
+        }
+    };
+    useEffect(() => {
+        window.addEventListener('click', handleClickOutside);
+        return () => {
+            window.removeEventListener('click', handleClickOutside);
+        };
+    });
 
     /* GUARD RAILS */
     if (value !== undefined && defaultValue !== undefined) {
@@ -54,16 +80,21 @@ function Root({ name, value = undefined, defaultValue = undefined, onChange = un
     }
     /* /GUARD RAILS */
 
-    const values: Record<string, ReactNode> = {};
-    Children.toArray(children)
-        .filter((child) => {
-            const c = child as ReactElement<OptionProps, typeof Option>;
-            return c && c?.type?.name === 'Option';
-        })
-        .forEach((child) => {
-            const { value: v, children: c } = (child as ReactElement<OptionProps, typeof Option>).props;
-            values[v] = c;
-        });
+    const [displayedValue, setDispalyedValue] = useState<ReactNode>('');
+    useEffect(() => {
+        const values: Record<string, ReactNode> = {};
+        Children.toArray(children)
+            .filter((child) => {
+                const c = child as ReactElement<OptionProps, typeof Option>;
+                return c && c?.type?.name === 'Option';
+            })
+            .forEach((child) => {
+                const { value: v, children: c } = (child as ReactElement<OptionProps, typeof Option>).props;
+                values[v] = c;
+            });
+
+        setDispalyedValue(values[value ?? intValue ?? ''] ?? 'Select an option');
+    }, [intValue, value, children]);
 
     const childrenWithProps = Children.map(children, (child) => {
         if (isValidElement(child) && (child.type as { name?: string })?.name === 'Option') {
@@ -105,7 +136,7 @@ function Root({ name, value = undefined, defaultValue = undefined, onChange = un
                 ref={buttonRef}
                 style={{ backgroundImage: `url('${(Border as StaticImageData).src}')`, backgroundSize: '100% 100%' }}
             >
-                {values[intValue ?? ''] ?? ''}
+                {displayedValue}
             </button>
             {isOpen ? (
                 <ul
@@ -113,7 +144,7 @@ function Root({ name, value = undefined, defaultValue = undefined, onChange = un
                     aria-orientation="vertical"
                     aria-labelledby={name}
                     ref={popOverRef}
-                    className="divide-grey/10 text-grey animate-fadeIn data-[hidden=true]:animate-fadeOut absolute z-30 flex flex-col divide-y rounded bg-black text-sm shadow-md "
+                    className="divide-grey/10 text-grey animate-fadeIn data-[hidden=true]:animate-fadeOut border-primary-2/20 absolute z-30 flex flex-col divide-y rounded border border-b-0 bg-black text-sm "
                     data-hidden="false"
                     style={{
                         top: popOverPosition.y,
@@ -141,11 +172,12 @@ function Option({ value, children, selected = false, onClick = () => {} }: Optio
                 role="menuitemradio"
                 aria-checked={selected}
                 type="button"
-                className="hover:bg-grey/10 inset-0 flex w-full cursor-pointer items-center justify-between px-6 py-4 text-left uppercase transition-colors"
+                className="hover:bg-grey/10 aria-[checked=true]:text-primary-1 inset-0 flex w-full cursor-pointer items-center justify-between px-6 py-4 text-left uppercase transition-colors aria-[checked=true]:pointer-events-none"
                 onClick={() => onClick(value)}
             >
                 <span>{children}</span>
-                <Image src={ArrowRight as StaticImageData} alt="arrow right" />
+                {/* <Image src={ArrowRight as StaticImageData} alt="arrow right" className="text-white" /> */}
+                <ArrowRight aria-hidden="true" className="" />
             </button>
         </li>
     );
