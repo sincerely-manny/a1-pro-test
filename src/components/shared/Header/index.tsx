@@ -4,10 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
-    ['/', '/'],
     ['Задание 1', '/algo'],
     ['Задание 2', '/ui-select'],
-    ['Задание 3', '/game'],
+    ['Задание 3', '/games'],
 ] as const;
 
 export default function Header() {
@@ -18,7 +17,7 @@ export default function Header() {
                 <ul className="flex h-40 w-full items-center justify-start gap-10">
                     {links.map(([title, href]) => (
                         <li key={href}>
-                            {pathname === href ? (
+                            {pathname.startsWith(href) ? (
                                 <span className="rounded bg-black p-2 text-white" aria-current="page">
                                     {title}
                                 </span>
