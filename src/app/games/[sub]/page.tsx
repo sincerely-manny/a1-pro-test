@@ -33,7 +33,14 @@ export default async function GamesByCat({ params: { sub } }: { params: { sub: s
                             title={title}
                         >
                             <div className="size-40 overflow-hidden rounded-md">
-                                <Image alt={title} src={img} width={180} height={180} className="object-cover" />
+                                <Image
+                                    alt={title}
+                                    src={img}
+                                    width={180}
+                                    height={180}
+                                    className="object-cover"
+                                    unoptimized
+                                />
                             </div>
                             <span className="max-w-full truncate">{title}</span>
                         </Link>

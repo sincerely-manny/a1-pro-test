@@ -39,7 +39,7 @@ export default async function Game({ params: { sub, seoTitle } }: { params: { su
                 </Link>
             </h2>
             <div className="flex items-start gap-20">
-                <Image src={img} alt={title} width={400} height={400} className="rounded-lg shadow-xl" />
+                <Image src={img} alt={title} width={400} height={400} className="rounded-lg shadow-xl" unoptimized />
                 <div>
                     <h3 className="mb-3 text-3xl font-semibold">Categories</h3>
                     <ul>
